@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redpoint Deployment Control</title>
+    <link href="/static/style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div id="container">
+{% include "content.htm" %}
+    </div>
+    <script type="text/javascript" src="/static/jquery-2.0.2.min.js"></script>
+    <script type="text/javascript">
+    <!--
+        var newData = null;
+        startRefreshAnim = function() {
+            $("#refresh").animate({width: "590px"}, 5000, "linear", function() {
+                if (newData != null) {
+                    $("#container").html(newData);
+                }
+                startRefreshAnim();
+                refresh();
+            });
+        }
+        refresh = function() {
+            newData = null;
+            setTimeout(function() {
+                $.ajax({
+                    url: "/ajax",
+                    success: function(data) {
+                        newData = data;
+                    },
+                    error: function() {
+                        newData = null;
+                    }
+                });
+            }, 4000);
+        }
+        startRefreshAnim();
+        refresh();
+    -->
+    </script>
+</body>

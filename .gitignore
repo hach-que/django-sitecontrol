@@ -1,0 +1,7 @@
+# Ignore these files.
+deploy/*
+database.sqlite3
+*.pyc
+manage.py
+newrelic.ini
+uwsgi.ini

@@ -1,0 +1,134 @@
+html, body
+{
+    font-family: Verdana, sans;
+    font-size: 12px;
+}
+
+div#container
+{
+    width: 600px;
+    margin: auto;
+}
+
+div#refresh
+{
+    background-color: rgba(0, 0, 255, 0.5);
+    height: 2px;
+    width: 1px;
+    margin-bottom: 1em;
+}
+
+ul#sites
+{
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    display: block;
+}
+
+ul#sites > li
+{
+    position: relative;
+    width: 600px;
+    font-size: 0px;
+}
+
+ul#sites > li > *
+{
+    font-size: 12px;
+}
+
+ul#sites > li > div, ul#sites > li > a
+{
+    height: 24px;
+    line-height: 24px;
+    padding: 5px;
+    margin: 0px;
+    width: 600px;
+    text-decoration: none;
+    color: black;
+    margin-bottom: 5px;
+}
+
+ul#sites > li > div.name
+{
+    display: inline-block;
+    background-color: #CCC;
+    padding-left: 15px;
+    width: 470px;
+}
+
+ul#sites > li > a.update, ul#sites > li > div.queued, ul#sites > li > div.updating
+{
+    display: inline-block;
+    width: 95px;
+    border-left: 5px solid white;
+    position: relative;
+    right: 0px;
+    top: 0px;
+    text-align: center;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+ul#sites > li > a.update
+{
+    background-color: #99F;
+}
+
+ul#sites > li > div.queued
+{
+    background-color: #EEE;
+}
+
+ul#sites > li > div.updating
+{
+    background-color: #F99;
+}
+
+ul#sites > li > ul
+{
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    display: block;
+    margin-left: 40px;
+}
+
+ul#sites > li > ul > li
+{
+    height: 24px;
+    line-height: 24px;
+    padding: 5px;
+    margin: 0px;
+    width: 530px;
+    text-decoration: none;
+    color: black;
+    background-color: #CCC;
+    margin-bottom: 5px;
+    padding-left: 15px;
+}
+
+ul#sites > li > ul > li.healthy
+{
+    background-color: #CFC;
+}
+
+ul#sites > li > ul > li.damaged
+{
+    background-color: #FFD6CC;
+}
+
+ul#sites > li > ul > li.offline
+{
+    background-color: #FCC;
+    font-weight: bold;
+}
+
+a#admin
+{
+    display: block;
+    text-align: center;
+    margin: auto;
+    margin-top: 20px;
+}

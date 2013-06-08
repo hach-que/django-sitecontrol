@@ -1,0 +1,42 @@
+        <h1>Redpoint Deployment Control</h1>
+        <p>
+            This site allows you to update sites based on the source data without SSH'ing
+            into the Redpoint VPS.
+        </p>
+        <p>
+{% if "second" in next_update %}
+            The next update check will process in {{ next_update }}.
+{% else %}
+            The next update check is {{ next_update }}.
+{% endif %}
+        </p>
+        <div id="refresh"></div>
+        <ul id="sites">
+{% for site in sites %}
+            <li>
+                <div class="name">
+                    {{ site.name }}
+                </div>
+    {% if site.is_updating %}
+                <div class="updating">
+                    Updating
+                </div>
+    {% elif site.is_queued %}
+                <div class="queued">
+                    Queued
+                </div>
+    {% else %}
+                <a class="update" href="/update/{{ site.id }}">
+                    Update
+                </a>
+    {% endif %}
+                <ul>
+    {% for host in site.hosts %}
+                    <li class="{{ host.status }}">{{ host.host }}</li>
+    {% endfor %}
+                </ul>
+            </li>
+{% endfor %}
+        </ul>
+        <a id="admin" href="/admin">Administration Panel</a>
+
