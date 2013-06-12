@@ -34,10 +34,10 @@ class HostAdmin(admin.ModelAdmin):
     inlines = [PageCheckInline,]
 
 class NullSourceAdmin(admin.ModelAdmin):
-    list_display = [name_only, 'reason']
+    list_display = [name_only, 'reason', 'last_update', 'last_deploy']
 
 class GitSourceAdmin(admin.ModelAdmin):
-    list_display = [name_only, 'source_url']
+    list_display = [name_only, 'source_url', 'last_check', 'last_update', 'last_deploy']
 
 admin.site.register(CoreSite, SiteAdmin)
 admin.site.register(CoreHost, HostAdmin)

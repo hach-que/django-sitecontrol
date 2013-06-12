@@ -1,8 +1,11 @@
 from django.core.management.base import BaseCommand, CommandError
 from sitecontrol.models import QueuedUpdate, CoreSite, DeployCommand
+from sitecontrol import sudo
 import subprocess
 import sys
 import traceback
+from datetime import datetime
+from django.utils.timezone import utc
 
 class Command(BaseCommand):
     args = ''
@@ -31,6 +34,11 @@ class Command(BaseCommand):
                 site.get_source().update(site)
                 print "~ Performing deployment for '" + site.name + "'..."
                 self.do_deploy(site)
+                
+                src = site.get_source()
+                src.last_deploy = datetime.utcnow().replace(tzinfo=utc)
+                src.save()
+                
             except Exception, ex:
                 traceback.print_exc()
             site.updating = False
@@ -39,19 +47,7 @@ class Command(BaseCommand):
     def do_deploy(self, site):
         for command in DeployCommand.objects.filter(site=site):
             print "+ " + command.program + " " + command.arguments
-            p = subprocess.Popen([
-                    "sudo",
-                    "-u",
-                    site.user,
-                    "/bin/bash",
-                    "-l",
-                    "-c",
-                    command.program + " " + command.arguments],
-                stdin=None,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                shell=False,
-                cwd=site.root)
+            p = sudo.run(site.user, command.program + " " + command.arguments, site.root)
             out, err = p.communicate()
             sys.stdout.write(out)
             sys.stderr.write(err)

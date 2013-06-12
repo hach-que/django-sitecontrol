@@ -3,6 +3,10 @@ from django.core.exceptions import ValidationError
 from ordered_model.models import OrderedModel
 import pwd
 import httplib
+import subprocess
+import sudo
+from datetime import datetime
+from django.utils.timezone import utc
 
 def validate_unix_user(value):
     try:
@@ -12,12 +16,14 @@ def validate_unix_user(value):
 
 class CoreSource(models.Model):
     name = models.CharField(max_length=200)
+    last_update = models.DateTimeField(null=True)
+    last_deploy = models.DateTimeField(null=True)
 
     def get_child(self):
         if hasattr(self, "nullsource"):
-            return NullSource(self.nullsource)
+            return self.nullsource
         elif hasattr(self, "gitsource"):
-            return GitSource(self.gitsource)
+            return self.gitsource
         else:
             raise Exception("Unknown source type")
 
@@ -69,22 +75,60 @@ class PageCheck(models.Model):
 class GitSource(CoreSource):
     source_url = models.CharField(max_length=500)
     poll_period_minutes = models.PositiveSmallIntegerField()
+    last_check = models.DateTimeField(auto_now_add=True)
     type = "Git Source"
+ 
+    def __unicode__(self):
+        return self.name
+   
+    def run_command(self, user, args, working_directory):
+        process = sudo.run(user, " ".join(args), working_directory)
+        stdout, stderr = process.communicate()
+        if process.returncode != 0:
+            return None
+        return stdout
 
     def requires_update(self, site):
-        raise Exception("Not implemented.")
+        if (datetime.utcnow().replace(tzinfo=utc) - self.last_check).total_seconds() < self.poll_period_minutes * 60:
+            return False
+        self.last_check = datetime.utcnow().replace(tzinfo=utc)
+        self.save()
+        if self.source_url == None or self.source_url.strip() == "":
+            return False
+        if self.run_command(site.user, ["git", "remote", "set-url", "origin", self.source_url], site.root) == None:
+            return False
+        if self.run_command(site.user, ["git", "fetch"], site.root) == None:
+            return False
+        current = self.run_command(site.user, ["git", "symbolic-ref", "-q", "HEAD"], site.root)
+        if current == None or current.strip() == "":
+            return False
+        upstream = self.run_command(site.user, ["git", "for-each-ref", "--format='%(upstream:short)'", current], site.root)
+        if upstream == None or upstream.strip() == "":
+            return False
+        incoming = self.run_command(site.user, ["git", "rev-list", ".."+upstream], site.root)
+        if incoming == None or incoming.strip() == "":
+            return False
+        return True
 
     def update(self, site):
-        raise Exception("Not implemented.")
+        self.run_command(site.user, ["git", "pull"], site.root)
+        self.last_update = datetime.utcnow().replace(tzinfo=utc)
+        self.save()
+        return True
 
 class NullSource(CoreSource):
     reason = models.TextField()
     type = "Null Source"
 
+    def __unicode__(self):
+        return self.name
+
     def requires_update(self, site):
         return False
 
     def update(self, site):
+        self.last_update = datetime.utcnow().replace(tzinfo=utc)
+        self.save()
         pass
 
 class DeployCommand(OrderedModel):
